@@ -1,0 +1,31 @@
+# Marketing Science Configuration
+
+# MMM (Marketing Mix Modeling)
+mmm:
+  n_samples: 1000
+  n_chains: 2
+  n_warmup: 500
+  apply_transformations: true
+  
+  # Adstock decay parameters (0 < decay < 1)
+  adstock_decays:
+    tv_spend: 0.5
+    radio_spend: 0.3
+    digital_spend: 0.7
+  
+  # Saturation parameters (half_saturation, slope)
+  saturation_params:
+    tv_spend: [10000, 1.0]
+    radio_spend: [5000, 1.0]
+    digital_spend: [8000, 1.0]
+
+# Price Elasticity
+price_elasticity:
+  log_transform: true
+  confidence_level: 0.95
+
+# Attribution
+attribution:
+  conversion_window_days: 30
+  touchpoint_order_col: "timestamp"
+

@@ -1,0 +1,17 @@
+PRICE ELASTICITY ANALYSIS
+============================================================
+
+Price Elasticity: -2.4599
+Std Error: 0.1367
+P-value: 0.0000
+
+Interpretation:
+Price elasticity: -2.460. A 1% increase in price leads to a -2.46% change in demand. Elastic demand.
+
+Promotion Lift:
+  Coefficient: 0.8076
+  Promotion increases demand by 124.3%
+
+Model Metrics:
+  R²: 0.7954
+  Adj R²: 0.7913

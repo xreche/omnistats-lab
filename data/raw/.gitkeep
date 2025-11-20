@@ -1,0 +1,3 @@
+# This file ensures the raw data directory is tracked by git
+# Actual data files should be added to .gitignore if they are large
+

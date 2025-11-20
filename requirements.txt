@@ -10,3 +10,16 @@ scikit-learn>=1.3.0
 # Statistics
 scipy>=1.11.0
 
+# Customer Analytics (PILAR 1)
+lifetimes>=0.11.3          # BG/NBD and Gamma-Gamma models for LTV
+
+# Marketing Science (PILAR 2)
+lightweight-mmm>=0.1.0     # Google Marketing Mix Modeling
+statsmodels>=0.14.0        # Econometrics (OLS, regression)
+
+# Utilities
+pyyaml>=6.0                 # Config files
+python-dotenv>=1.0.0       # Environment variables
+tqdm>=4.65.0               # Progress bars
+joblib>=1.3.0              # Model serialization
+

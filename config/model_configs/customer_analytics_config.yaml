@@ -1,0 +1,29 @@
+# Customer Analytics Configuration
+
+# CAC (Customer Acquisition Cost)
+cac:
+  inactivity_window_days: 90
+  date_column: "date"
+  spend_column: "spend"
+  customer_id_column: "customer_id"
+
+# LTV (Lifetime Value)
+ltv:
+  prediction_period_days: 365
+  discount_rate: 0.1  # 10% discount rate
+  frequency_weight: 4.0
+  recency_weight: 4.0
+  monetary_weight: 1.0
+
+# Churn Rate
+churn:
+  inactivity_window_days: 90
+  observation_date: null  # null = use max date in data
+
+# RFM Segmentation
+rfm:
+  recency_bins: 5
+  frequency_bins: 5
+  monetary_bins: 5
+  observation_date: null  # null = use max date in data
+
