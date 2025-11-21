@@ -1,76 +1,82 @@
 # Tareas Pendientes - OmniStats Lab
 
-## 🔧 Instalación de lightweight-mmm (Marketing Mix Modeling)
+## ✅ PILAR 2: Marketing Science - COMPLETADO
 
 ### Estado Actual
-- ✅ Visual C++ Build Tools instaladas correctamente
-- ✅ `matplotlib` compilado exitosamente
-- ❌ `lightweight-mmm` no instalado completamente
-- ⚠️ TensorFlow falla por rutas de archivos muy largas en Windows
+- ✅ **Migración completada:** `lightweight-mmm` → `pymc-marketing`
+- ✅ **Dependencias instaladas:** `pymc-marketing>=0.5.0`, `pymc>=5.0.0`, `arviz>=0.17.0`, `xarray>=2023.0.0`
+- ✅ **Código refactorizado:** `src/models/marketing_science/mmm.py` usando PyMC-Marketing
+- ✅ **Pipeline funcional:** `scripts/run_marketing_science.py` ejecuta correctamente
+- ✅ **Información de progreso:** Logging detallado durante el entrenamiento MCMC
 
-### Problema Identificado
-El paquete `tensorflow` (dependencia de `lightweight-mmm`) no se puede instalar debido a que Windows tiene un límite de 260 caracteres para rutas de archivos. Algunos archivos dentro del paquete TensorFlow exceden este límite.
+### Mejoras Pendientes (No Críticas)
 
-### Solución: Habilitar Rutas Largas en Windows
+#### 1. Optimización de Convergencia MCMC
+- [ ] Aumentar `target_accept` en `mmm.fit()` para reducir divergencias
+  - Actualmente: 44 divergencias con parámetros mínimos
+  - Objetivo: <5 divergencias con parámetros de producción
+  - Ubicación: `src/models/marketing_science/mmm.py` línea ~219
+  - Solución: Añadir `target_accept=0.95` o `0.99` al `mmm.fit()`
 
-#### Paso 1: Ejecutar PowerShell como Administrador
-1. Presiona `Win + X` y selecciona "Windows PowerShell (Administrador)" o "Terminal (Administrador)"
-2. O busca "PowerShell" en el menú de inicio, haz clic derecho y selecciona "Ejecutar como administrador"
+#### 2. Corrección de Visualizaciones
+- [ ] Arreglar `plot_channel_contribution_grid()` - requiere argumentos `start`, `stop`, `num`
+  - Ubicación: `src/models/marketing_science/mmm.py` línea ~405
+  - Solución: Pasar parámetros temporales desde el DataFrame o configuración
+  
+- [ ] Arreglar `plot_allocated_contribution_by_channel()` - requiere argumento `samples`
+  - Ubicación: `src/models/marketing_science/mmm.py` línea ~417
+  - Solución: Extraer muestras del `idata` posterior
 
-#### Paso 2: Habilitar Rutas Largas
-Ejecuta el siguiente comando en PowerShell (como Administrador):
+#### 3. Extracción de Efectividad de Medios
+- [ ] Mejorar método `get_channel_contributions_posterior()` o `get_ts_contribution_posterior()`
+  - Actualmente: Usa fallback method
+  - Objetivo: Extraer contribuciones correctamente desde el posterior
+  - Ubicación: `src/models/marketing_science/mmm.py` línea ~239
 
-```powershell
-New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
-```
-
-**Verificación:**
-```powershell
-Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled"
-```
-
-Debería mostrar `LongPathsEnabled : 1`
-
-#### Paso 3: Reiniciar el Sistema
-⚠️ **IMPORTANTE:** Reinicia tu computadora para que los cambios surtan efecto.
-
-#### Paso 4: Instalar lightweight-mmm
-Después de reiniciar, abre una nueva terminal y ejecuta:
-
-```bash
-pip install lightweight-mmm
-```
-
-#### Paso 5: Verificar Instalación
-```bash
-python -c "from src.models.marketing_science.mmm import LIGHTWEIGHT_MMM_AVAILABLE; print(f'lightweight-mmm disponible: {LIGHTWEIGHT_MMM_AVAILABLE}')"
-```
-
-Debería mostrar: `lightweight-mmm disponible: True`
-
-#### Paso 6: Probar el Pipeline Completo
-```bash
-python scripts/run_marketing_science.py
-```
-
-Ahora debería ejecutar el módulo MMM sin problemas.
+#### 4. Parámetros de Producción
+- [ ] Documentar parámetros recomendados para producción:
+  - `draws=1000` (actualmente 50 para pruebas)
+  - `tune=1000` (actualmente 50 para pruebas)
+  - `chains=2` (actualmente 1 para pruebas)
+  - `target_accept=0.95` (nuevo parámetro a añadir)
 
 ---
 
 ## 📋 Pilares Pendientes de Implementación
 
-### Pilar 3: Inferencia Causal
-- [ ] **Propensity Score Matching (PSM)**
-  - [ ] Instalar `dowhy`: `pip install dowhy`
-  - [ ] Implementar `src/models/causal_inference/psm.py`
-  - [ ] Crear script `scripts/run_causal_inference.py`
-  - [ ] Añadir configuración en `config/model_configs/causal_inference_config.yaml`
-  - [ ] Documentar metodología en `docs/methodology/causal_inference.md`
+### Pilar 3: Inferencia Causal - ✅ IMPLEMENTADO
 
-- [ ] **Difference-in-Differences (DiD)**
-  - [ ] Implementar `src/models/causal_inference/did.py`
-  - [ ] Integrar en el pipeline de causal inference
-  - [ ] Añadir tests y validaciones
+#### Estado Actual
+- ✅ **Propensity Score Matching (PSM)**: Implementado en `src/models/causal_inference/psm.py`
+- ✅ **Difference-in-Differences (DiD)**: Implementado en `src/models/causal_inference/did.py`
+- ✅ **Script de ejecución**: `scripts/run_causal_inference.py` creado
+- ✅ **Configuración**: `config/model_configs/causal_inference_config.yaml` creado
+- ✅ **Dependencias**: `requirements.txt` actualizado con `dowhy` y `econml`
+
+#### Próximos Pasos
+- [ ] **Instalar dependencias:**
+  ```bash
+  pip install dowhy econml
+  ```
+
+- [ ] **Probar el pipeline:**
+  ```bash
+  python scripts/run_causal_inference.py
+  ```
+
+- [ ] **Añadir datos reales (opcional):**
+  - Crear carpeta `data/raw/causal_inference/`
+  - Añadir archivos `psm_data.csv` y `did_data.csv` con estructura esperada
+  - Ajustar nombres de columnas en `scripts/run_causal_inference.py` según datos reales
+
+- [ ] **Documentar metodología:**
+  - Crear `docs/methodology/causal_inference.md`
+  - Explicar PSM y DiD
+  - Incluir ejemplos de uso
+
+- [ ] **Integrar en Streamlit (opcional):**
+  - Crear `app/pages/3_causal_inference.py`
+  - Añadir visualizaciones interactivas
 
 ### Pilar 4: GenAI & Automatización
 - [ ] **RAG (Retrieval Augmented Generation)**
@@ -138,6 +144,10 @@ Ahora debería ejecutar el módulo MMM sin problemas.
 
 ---
 
-**Última actualización:** 2025-11-20
-**Estado general:** Pilares 1 y 2 implementados. Pilares 3 y 4 pendientes.
+**Última actualización:** 2025-11-21
+**Estado general:** 
+- ✅ Pilar 1 (Customer Analytics): Implementado
+- ✅ Pilar 2 (Marketing Science): Implementado con PyMC-Marketing (algunas mejoras pendientes)
+- ⏳ Pilar 3 (Inferencia Causal): Pendiente
+- ⏳ Pilar 4 (GenAI & Automatización): Pendiente
 

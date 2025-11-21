@@ -1,0 +1,25 @@
+# Causal Inference Configuration
+
+# Propensity Score Matching (PSM)
+psm:
+  estimand_type: "nonparametric-ate"  # Average Treatment Effect
+  method_name: "backdoor.propensity_score_matching"
+  num_ci_simulations: 100
+  random_seed: 42
+  
+  # Refutation tests
+  run_refutation_tests: true
+  refutation_methods:
+    - "placebo_treatment_refuter"
+    # - "random_common_cause"  # Optional
+    # - "data_subset_refuter"  # Optional
+
+# Difference-in-Differences (DiD)
+did:
+  confidence_level: 0.95
+  include_controls: true  # Include control variables if available
+  
+  # Time period configuration
+  # If time_col is not binary, specify post_treatment_period value
+  # post_treatment_period: null  # Set to specific value if needed
+

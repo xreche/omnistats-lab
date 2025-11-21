@@ -12,6 +12,8 @@ sys.path.insert(0, str(project_root))
 from src.utils.logging_config import setup_logging
 from src.models.marketing_science import (
     run_mmm_analysis,
+    optimize_channel_budget,
+    plot_mmm_results,
     calculate_price_elasticity,
     calculate_markov_attribution
 )
@@ -143,37 +145,66 @@ def main():
             logger.warning("No media channels found. Skipping MMM analysis.")
         else:
             try:
+                # Run MMM analysis with pymc-marketing
+                # PARÁMETROS MÍNIMOS para pruebas rápidas
+                logger.info("⚠️  Usando parámetros MÍNIMOS para pruebas rápidas")
+                logger.info("   Para producción, aumentar: draws=1000, tune=1000, chains=2")
                 mmm_results = run_mmm_analysis(
                     df=mmm_data,
                     target_col='sales',
                     media_channels=available_media,
                     control_vars=['price'] if 'price' in mmm_data.columns else None,
                     date_col='date' if 'date' in mmm_data.columns else None,
-                    n_samples=500,  # Reduced for faster execution
-                    n_chains=2,
-                    apply_transformations=True
+                    adstock_max_lag=4,  # Mínimo para pruebas rápidas
+                    yearly_seasonality=1,  # Mínimo para pruebas rápidas
+                    draws=50,  # MÍNIMO para pruebas rápidas (default producción: 1000)
+                    chains=1,  # MÍNIMO para pruebas rápidas (default producción: 2)
+                    tune=50,  # MÍNIMO para pruebas rápidas (default producción: 1000)
+                    random_seed=42
                 )
                 
                 # Save MMM results
                 mmm_output = output_dir / "reports" / "mmm_results.txt"
                 mmm_output.parent.mkdir(parents=True, exist_ok=True)
                 
-                with open(mmm_output, 'w') as f:
-                    f.write("MARKETING MIX MODELING RESULTS\n")
+                with open(mmm_output, 'w', encoding='utf-8') as f:
+                    f.write("MARKETING MIX MODELING RESULTS (PyMC-Marketing)\n")
                     f.write("=" * 60 + "\n\n")
+                    f.write("Powered by PyMC-Marketing (Bayesian Inference v5)\n\n")
                     f.write("Media Effectiveness:\n")
                     for channel, metrics in mmm_results['media_effectiveness'].items():
                         f.write(f"\n{channel}:\n")
-                        f.write(f"  Mean: {metrics['mean']:.4f}\n")
-                        f.write(f"  Median: {metrics['median']:.4f}\n")
-                        f.write(f"  Std: {metrics['std']:.4f}\n")
-                        f.write(f"  95% CI: [{metrics['p5']:.4f}, {metrics['p95']:.4f}]\n")
+                        if isinstance(metrics.get('mean'), (int, float)):
+                            f.write(f"  Mean: {metrics['mean']:.4f}\n")
+                            f.write(f"  Median: {metrics['median']:.4f}\n")
+                            f.write(f"  Std: {metrics['std']:.4f}\n")
+                            f.write(f"  95% HDI: [{metrics['hdi_3%']:.4f}, {metrics['hdi_97%']:.4f}]\n")
+                        else:
+                            f.write(f"  {metrics.get('note', 'N/A')}\n")
+                    
+                    f.write(f"\nModel Summary:\n")
+                    f.write(f"  Samples: {mmm_results['summary_stats']['n_samples']}\n")
+                    f.write(f"  Media Channels: {mmm_results['summary_stats']['n_media_channels']}\n")
+                    f.write(f"  Draws: {mmm_results['summary_stats']['draws']}\n")
+                    f.write(f"  Chains: {mmm_results['summary_stats']['chains']}\n")
                 
                 logger.info(f"Saved MMM results to {mmm_output}")
                 
+                # Optional: Generate visualizations
+                try:
+                    plot_output = output_dir / "visualizations" / "mmm"
+                    plot_output.parent.mkdir(parents=True, exist_ok=True)
+                    plot_mmm_results(
+                        mmm_results['model'],
+                        output_path=str(plot_output)
+                    )
+                    logger.info(f"Saved MMM visualizations to {plot_output}")
+                except Exception as plot_error:
+                    logger.warning(f"Could not generate visualizations: {plot_error}")
+                
             except Exception as e:
-                logger.warning(f"MMM analysis failed (may need lightweight-mmm): {str(e)}")
-                logger.info("Skipping MMM analysis. Install with: pip install lightweight-mmm")
+                logger.error(f"MMM analysis failed: {str(e)}")
+                logger.info("Skipping MMM analysis. Check that pymc-marketing is installed correctly.")
         
         # 3. Price Elasticity
         logger.info("\n[3/3] Calculating Price Elasticity...")

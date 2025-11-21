@@ -14,8 +14,15 @@ scipy>=1.11.0
 lifetimes>=0.11.3          # BG/NBD and Gamma-Gamma models for LTV
 
 # Marketing Science (PILAR 2)
-lightweight-mmm>=0.1.0     # Google Marketing Mix Modeling
+pymc-marketing>=0.5.0      # PyMC Marketing Mix Modeling (Bayesian Inference)
+pymc>=5.0.0                # Probabilistic programming framework
+arviz>=0.17.0              # Bayesian analysis and visualization
+xarray>=2023.0.0           # Multi-dimensional arrays for inference outputs
 statsmodels>=0.14.0        # Econometrics (OLS, regression)
+
+# Causal Inference (PILAR 3)
+dowhy>=0.11.0              # Causal inference framework (PSM, IV, etc.)
+econml>=0.14.0             # Causal ML methods (optional, for advanced methods)
 
 # Utilities
 pyyaml>=6.0                 # Config files
